@@ -55,6 +55,7 @@ function getQuote(nb, cb) {
 	});
 	$('#comments > .comment').each(function(i, item) {
 	    var comment = {author: {}};
+	    comment.id = $(item).attr('id').substr(1);
 	    comment.content = $('<p>' + $('.comment-content > p', item).html().replace(/<br>/g, '\n') + '</p>').text();
 	    comment.plus = parseInt($('a.voteplus', item).text().split(' ')[1]);
 	    comment.minus = parseInt($('a.voteminus', item).text().split(' ')[1]);
