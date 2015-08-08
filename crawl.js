@@ -123,7 +123,7 @@ function addComment(comment, quoteId) {
 function updateComment(comment, quoteId) {
     c.parsedQuery('SELECT COUNT(*) FROM `Comments` WHERE `id` = ' + comment.id, function(e, r, i) {
 	if (r[0]['COUNT(*)'] != '0') {
-	    c.parsedQuery('UPDATE `Comments` SET `voteminus` = ' + comment.votes.minus + ' AND `voteplus` = ' + comment.votes.plus + ' WHERE `id` = ' + comment.id, function(e, r, i) {
+	    c.parsedQuery('UPDATE `Comments` SET `voteminus` = ' + comment.votes.minus + ', `voteplus` = ' + comment.votes.plus + ' WHERE `id` = ' + comment.id, function(e, r, i) {
 		if (e)
 		    throw e;
 	    });
@@ -156,7 +156,7 @@ getLatestQuoteNumber(function(e, nb) {
 		_.each(quote.comments, function(comment) {
 		    updateComment(comment, quote.id);
 		});
-		c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ' AND `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
+		c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
 		    if (e)
 			throw e;
 		});
