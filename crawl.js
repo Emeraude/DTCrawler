@@ -61,8 +61,9 @@ function getQuote(nb, cb) {
 	    comment.votes.plus = parseInt($('a.voteplus', item).text().split(' ')[1]);
 	    comment.votes.minus = parseInt($('a.voteminus', item).text().split(' ')[1]);
 	    comment.author.login = $('.comment-content > a.gravatar > img', item).attr('alt');
-	    comment.author.id = parseInt($('.comment-content > a.gravatar').attr('href').split('.html')[0].split('/geek/')[1]);
+	    comment.author.id = parseInt($('.comment-content > a.gravatar', item).attr('href').split('.html')[0].split('/geek/')[1]);
 	    quote.comments.push(comment);
+	    console.log(comment);
 	});
 	cb(undefined, quote);
     });
