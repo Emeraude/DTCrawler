@@ -30,7 +30,12 @@ function getLatestQuoteNumber(cb) {
 function getQuote(nb, cb) {
     getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(page) {
 	var $ = cheerio.load(page);
-	var quote = {content: []};
+	var quote = {content: [],
+		     votes: {
+			 plus: $('#' + nb + ' > a.voteplus').text().split(' ')[1],
+			 minus: $('#' + nb + ' > a.voteminus').text().split(' ')[1],
+		     }
+		    };
 	_.each($('#content > .item-entry > .item' + nb + ' > .item-content > a').html().split('<br>'), function(line) {
 	    quote.content.push({login: $('.decoration', line).text(),
 				line: $('<p>' + line.split('</span>')[1] + '</p>').text()});
