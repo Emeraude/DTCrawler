@@ -50,7 +50,7 @@ function getQuote(nb, cb) {
 		     comments: []
 		    };
 	_.each($('#content > .item-entry > .item' + nb + ' > .item-content > a').html().split('<br>'), function(line) {
-	    quote.content.push({login: $('.decoration', line).text(),
+	    quote.content.push({login: $('.decoration', '<p>' + line + '</p>').text(),
 				line: $('<p>' + line.split('</span>')[1] + '</p>').text()});
 	});
 	$('#comments > .comment').each(function(i, item) {
@@ -67,17 +67,12 @@ function getQuote(nb, cb) {
 }
 
 getLatestQuoteNumber(function(e, nb) {
-    getQuote(nb, function(e, quote) {
-	if (e)
-	    console.log('Error ' + e);
-	else
-	    console.log(quote);
-    });
-});
-
-getQuote(42, function(e, quote) {
-    if (e)
-	console.log('Error ' + e);
-    else
-	console.log(quote);
+    for (i = 1; i <= nb; ++i) {
+	getQuote(i, function(e, quote) {
+	    if (e)
+		console.log('Error ' + e);
+	    else
+		console.log('Parsed: ' + quote.id);
+	});
+    }
 });
