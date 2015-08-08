@@ -63,7 +63,6 @@ function getQuote(nb, cb) {
 	    comment.author.login = $('.comment-content > a.gravatar > img', item).attr('alt');
 	    comment.author.id = parseInt($('.comment-content > a.gravatar', item).attr('href').split('.html')[0].split('/geek/')[1]);
 	    quote.comments.push(comment);
-	    console.log(comment);
 	});
 	cb(undefined, quote);
     });
@@ -165,6 +164,10 @@ getLatestQuoteNumber(function(e, nb) {
 	    else
 		createQuote(quote);
 	});
-	require('pretty-console.log')(quote);
+	try {
+	    require('pretty-console.log')(quote);
+	} catch(e) {
+	    console.log(quote);
+	}
     });
 });
