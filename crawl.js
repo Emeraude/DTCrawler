@@ -10,25 +10,36 @@ function getPage(options, cb) {
 	r.on('data', function(d) {
 	    page += d;
 	}).on('end', function() {
-	    cb(page);
+	    if (r.statusCode == 200)
+		cb(undefined, page);
+	    else
+		cb(r.statusCode);
 	});
     });
 }
 
 function getLatestQuoteNumber(cb) {
-    getPage({host: 'danstonchat.com', path: '/latest.html', port: 80, method: 'GET'}, function(page) {
+    getPage({host: 'danstonchat.com', path: '/latest.html', port: 80, method: 'GET'}, function(e, page) {
+	if (e) {
+	    cb(e);
+	    return;
+	}
 	var $ = cheerio.load(page);
 	var latestQuote;
 	$('#content > .item-listing > div.item').each(function(i, item) {
 	    if (!i)
 		latestQuote = parseInt($(item).attr('class').split(' ')[1].substr(4));
 	});
-	cb(latestQuote);
+	cb(undefined, latestQuote);
     });
 }
 
 function getQuote(nb, cb) {
-    getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(page) {
+    getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(e, page) {
+	if (e) {
+	    cb(e);
+	    return;
+	}
 	var $ = cheerio.load(page);
 	var quote = {id: nb,
 		     content: [],
@@ -51,12 +62,22 @@ function getQuote(nb, cb) {
 	    comment.author.id = parseInt($('.comment-content > a.gravatar').attr('href').split('.html')[0].split('/geek/')[1]);
 	    quote.comments.push(comment);
 	});
-	cb(quote);
+	cb(undefined, quote);
     });
 }
 
-getLatestQuoteNumber(function(nb) {
-    getQuote(nb, function(quote) {
-	console.log(quote);
+getLatestQuoteNumber(function(e, nb) {
+    getQuote(nb, function(e, quote) {
+	if (e)
+	    console.log('Error ' + e);
+	else
+	    console.log(quote);
     });
+});
+
+getQuote(42, function(e, quote) {
+    if (e)
+	console.log('Error ' + e);
+    else
+	console.log(quote);
 });
