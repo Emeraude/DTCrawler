@@ -33,15 +33,6 @@ CREATE TABLE `Authors` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Authors`
---
-
-LOCK TABLES `Authors` WRITE;
-/*!40000 ALTER TABLE `Authors` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Authors` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Comments`
 --
 
@@ -60,15 +51,6 @@ CREATE TABLE `Comments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `Comments`
---
-
-LOCK TABLES `Comments` WRITE;
-/*!40000 ALTER TABLE `Comments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Comments` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Lines`
 --
 
@@ -81,15 +63,6 @@ CREATE TABLE `Lines` (
   `content` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Lines`
---
-
-LOCK TABLES `Lines` WRITE;
-/*!40000 ALTER TABLE `Lines` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Lines` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Quotes`
@@ -106,14 +79,6 @@ CREATE TABLE `Quotes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `Quotes`
---
-
-LOCK TABLES `Quotes` WRITE;
-/*!40000 ALTER TABLE `Quotes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `Quotes` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
