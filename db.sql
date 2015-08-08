@@ -53,7 +53,9 @@ CREATE TABLE `Comments` (
   `authorId` int(11) NOT NULL,
   `content` text NOT NULL,
   `voteplus` int(11) NOT NULL,
-  `voteminus` int(11) NOT NULL
+  `voteminus` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -122,4 +124,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-08-08  4:29:12
+-- Dump completed on 2015-08-08 18:41:10
