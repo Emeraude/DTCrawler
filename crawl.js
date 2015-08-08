@@ -94,7 +94,7 @@ c.parsedQuery = function(query, cb) {
 	    r.on('row', function(row) {
 		d.push(row);
 	    }).on('end', function(i) {
-		cb(undefined, d, i);;
+		cb(undefined, d, i);
 	    }).on('error', function(e) {
 		cb(e, undefined, undefined);
 	    });
@@ -103,16 +103,17 @@ c.parsedQuery = function(query, cb) {
 
 function addAuthor(author) {
     c.parsedQuery('SELECT COUNT(*) FROM `Authors` WHERE `id` = ' + author.id, function(e, r, i) {
-	if (!i.numRows)
-	    c.parsedQuery('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.name) + '")', function(e, r, i) {
+	if (r[0]['COUNT(*)'] == '0') {
+	    c.parsedQuery('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.login) + '")', function(e, r, i) {
 		if (e)
 		    throw e;
 	    });
+	}
     });
 }
 
 function addComment(comment, quoteId) {
-    c.parsedQuery('INSERT INTO `comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + comment.author.id + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r, i) {
+    c.parsedQuery('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + comment.author.id + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r, i) {
 	addAuthor(comment.author);
 	if (e)
 	    throw e;
@@ -121,28 +122,29 @@ function addComment(comment, quoteId) {
 
 function updateComment(comment, quoteId) {
     c.parsedQuery('SELECT COUNT(*) FROM `Comments` WHERE `id` = ' + comment.id, function(e, r, i) {
-	if (i.numRows)
+	if (r[0]['COUNT(*)'] != '0') {
 	    c.parsedQuery('UPDATE `Comments` SET `voteminus` = ' + comment.votes.minus + ' AND `voteplus` = ' + comment.votes.plus + ' WHERE `id` = ' + comment.id, function(e, r, i) {
 		if (e)
 		    throw e;
 	    });
+	}
 	else
 	    addComment(comment, quoteId);
     });
 }
 
 function createQuote(quote) {
-    c.parsedQuery('INSERT INTO `Quotes`(`id`, `voteminus`, `voteplus`) VALUES(' + quote.id + ', ' + quote.votes.plus + ', ' + quote.votes.minus + ')', function(e, r, i) {
+    c.parsedQuery('INSERT INTO `Quotes`(`id`, `voteminus`, `voteplus`) VALUES(' + quote.id + ', ' + quote.votes.minus + ', ' + quote.votes.plus + ')', function(e, r, i) {
 	if (e)
 	    throw e;
-	_.each(quote.lines, function(line) {
-	    c.parsedQuery('INSERT INTO `Lines`(`quoteId`, `login`, `content`) VALUES(' + quote.id + ', "' + c.escape(line.login), + '", "' + c.escape(line.content) + '")', function(e, r, i) {
+	_.each(quote.content, function(line) {
+	    c.parsedQuery('INSERT INTO `Lines`(`quoteId`, `login`, `content`) VALUES(' + quote.id + ', "' + c.escape(line.login) + '", "' + c.escape(line.line) + '")', function(e, r, i) {
 		if (e)
 		    throw e;
 	    });
 	});
 	_.each(quote.comments, function(comment) {
-	    addcomment(comment, quote.id);
+	    addComment(comment, quote.id);
 	});
     });
 }
@@ -150,7 +152,7 @@ function createQuote(quote) {
 getLatestQuoteNumber(function(e, nb) {
     getQuote(nb, function(e, quote) {
 	c.parsedQuery('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
-	    if (i.numRows) {
+	    if (r[0]['COUNT(*)'] != '0') {
 		_.each(quote.comments, function(comment) {
 		    updateComment(comment, quote.id);
 		});
