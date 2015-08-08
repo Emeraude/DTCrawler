@@ -13,8 +13,9 @@ function getPage(options, cb) {
 	}).on('end', function() {
 	    if (r.statusCode == 200)
 		cb(undefined, page);
-	    else
+	    else {
 		cb(r.statusCode);
+	    }
 	});
     });
 }
@@ -60,8 +61,12 @@ function getQuote(nb, cb) {
 	    comment.content = $('<p>' + $('.comment-content > p', item).html().replace(/<br>/g, '\n') + '</p>').text();
 	    comment.votes.plus = parseInt($('a.voteplus', item).text().split(' ')[1]);
 	    comment.votes.minus = parseInt($('a.voteminus', item).text().split(' ')[1]);
-	    comment.author.login = $('.comment-content > a.gravatar > img', item).attr('alt');
-	    comment.author.id = parseInt($('.comment-content > a.gravatar', item).attr('href').split('.html')[0].split('/geek/')[1]);
+	    try {
+		comment.author.login = $('.comment-content > a.gravatar > img', item).attr('alt');
+		comment.author.id = parseInt($('.comment-content > a.gravatar', item).attr('href').split('.html')[0].split('/geek/')[1]);
+	    } catch(e) {
+		comment.author = null;
+	    }
 	    quote.comments.push(comment);
 	});
 	cb(undefined, quote);
@@ -75,17 +80,6 @@ c.connect({
     password: 'toor',
     db: 'DTCrawler'
 });
-
-// getLatestQuoteNumber(function(e, nb) {
-//     for (i = 1; i <= nb; ++i) {
-// 	getQuote(i, function(e, quote) {
-// 	    if (e)
-// 		console.log('Error ' + e);
-// 	    else
-// 		console.log('Parsed: ' + quote.id);
-// 	});
-//     }
-// });
 
 c.parsedQuery = function(query, cb) {
     c.query(query)
@@ -105,16 +99,15 @@ function addAuthor(author) {
     c.parsedQuery('SELECT COUNT(*) FROM `Authors` WHERE `id` = ' + author.id, function(e, r, i) {
 	if (r[0]['COUNT(*)'] == '0') {
 	    c.parsedQuery('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.login) + '")', function(e, r, i) {
-		if (e)
-		    throw e;
 	    });
 	}
     });
 }
 
 function addComment(comment, quoteId) {
-    c.parsedQuery('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + comment.author.id + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r, i) {
-	addAuthor(comment.author);
+    c.parsedQuery('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + (comment.author ? comment.author.id : 'NULL') + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r, i) {
+	if (comment.author)
+	    addAuthor(comment.author);
 	if (e)
 	    throw e;
     });
@@ -150,24 +143,26 @@ function createQuote(quote) {
 }
 
 getLatestQuoteNumber(function(e, nb) {
-    getQuote(nb, function(e, quote) {
-	c.parsedQuery('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
-	    if (r[0]['COUNT(*)'] != '0') {
-		_.each(quote.comments, function(comment) {
-		    updateComment(comment, quote.id);
-		});
-		c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
-		    if (e)
-			throw e;
+    for (i = 1; i <= nb; ++i) {
+	getQuote(i, function(e, quote) {
+	    if (e)
+		console.log('Error ' + e);
+	    else {
+		console.log('Parsed: ' + quote.id)
+		c.parsedQuery('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
+		    if (r[0]['COUNT(*)'] != '0') {
+			_.each(quote.comments, function(comment) {
+			    updateComment(comment, quote.id);
+			});
+			c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
+			    if (e)
+				throw e;
+			});
+		    }
+		    else
+			createQuote(quote);
 		});
 	    }
-	    else
-		createQuote(quote);
 	});
-	try {
-	    require('pretty-console.log')(quote);
-	} catch(e) {
-	    console.log(quote);
-	}
-    });
+    }
 });

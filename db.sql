@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS `Comments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Comments` (
   `quoteId` int(11) NOT NULL,
-  `authorId` int(11) NOT NULL,
+  `authorId` int(11) DEFAULT NULL,
   `content` text NOT NULL,
   `voteplus` int(11) NOT NULL,
   `voteminus` int(11) NOT NULL,
