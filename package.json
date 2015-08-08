@@ -1,0 +1,29 @@
+{
+  "name": "dtcrawler",
+  "version": "0.0.1",
+  "description": "A Crawler to get all the quotes from danstonchat.com.",
+  "main": "crawl.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./crawl.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/Emeraude/DTCrawler.git"
+  },
+  "keywords": [
+    "crawler",
+    "dtc",
+    "bashrc",
+    "danstonchat"
+  ],
+  "author": "Emeraude",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://gitlab.com/Emeraude/DTCrawler/issues"
+  },
+  "homepage": "https://gitlab.com/Emeraude/DTCrawler#README",
+  "dependencies": {
+    "cheerio": "^0.19.0"
+  }
+}
