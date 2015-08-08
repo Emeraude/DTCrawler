@@ -58,7 +58,7 @@ function getQuote(nb, cb) {
 	    comment.content = $('<p>' + $('.comment-content > p', item).html().replace(/<br>/g, '\n') + '</p>').text();
 	    comment.plus = parseInt($('a.voteplus', item).text().split(' ')[1]);
 	    comment.minus = parseInt($('a.voteminus', item).text().split(' ')[1]);
-	    comment.author.name = $('.comment-content > a.gravatar > img', item).attr('alt');
+	    comment.author.login = $('.comment-content > a.gravatar > img', item).attr('alt');
 	    comment.author.id = parseInt($('.comment-content > a.gravatar').attr('href').split('.html')[0].split('/geek/')[1]);
 	    quote.comments.push(comment);
 	});
