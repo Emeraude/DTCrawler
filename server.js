@@ -23,55 +23,72 @@ c.parsedQuery = function(query, cb) {
     });
 }
 
+var quotesNb;
+
+function updateQuotesNb() {
+  c.parsedQuery('SELECT COUNT(*) FROM `Quotes`', function(e, r, i) {
+    quotesNb = r[0]['COUNT(*)'];
+  });
+  setTimeout(updateQuotesNb, 6000);
+}
+
+updateQuotesNb();
+
+function sendQuote(req, res, nb) {
+  var query = 'SELECT `Quotes`.`id`, `Quotes`.`voteplus`, `Quotes`.`voteminus`, `Lines`.`login`, `Lines`.`content` FROM `Quotes` LEFT JOIN `Lines` ON `Lines`.`quoteId` = `Quotes`.`id` ';
+  if (nb)
+    query += 'WHERE `Quotes`.`id` = ' + nb;
+  else
+    query += 'LIMIT 1 OFFSET ' + parseInt(Math.random() * quotesNb); // OFFSET is really slow and I don't know why
+  c.parsedQuery(query, function(e, r, i) {
+    console.log(query);
+    if (!i.numRows) {
+      res.statusCode = 404;
+      res.statusMessage = 'Not found';
+      res.send(res.statusMessage);
+    }
+    else {
+      var data = {
+	id: r[0].id,
+	votes: {
+	  plus: parseInt(r[0].voteplus),
+	  minus: parseInt(r[0].voteminus)
+	},
+	content: [],
+	comments: []};
+      data.id = r[0].id;
+      _.each(r, function(row) {
+	data.content.push({login: row.login, line: row.content})
+      });
+      c.parsedQuery('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + r[0].id, function(e, r, i) {
+	_.each(r, function(row) {
+	  data.comments.push({
+	    id: parseInt(row.id),
+	    content: row.content,
+	    author: {
+	      id: parseInt(row.authorId),
+	      name: row.login
+	    },
+	    votes: {
+	      plus: parseInt(row.voteplus),
+	      minus: parseInt(row.voteminus)
+	    }
+	  });
+	});
+	console.log('Quote ' + data.id + ' sent to ' + req.connection.remoteAddress);
+	res.statusCode = 200;
+	res.send(data);
+      });
+    }
+  })
+}
+
 app.get('/quote/:nb', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
-  if (req.params.nb.match(/^\d{1,}$/)) {
-    c.parsedQuery('SELECT `Quotes`.`id`, `Quotes`.`voteplus`, `Quotes`.`voteminus`, `Lines`.`login`, `Lines`.`content` FROM `Quotes` LEFT JOIN `Lines` ON `Lines`.`quoteId` = `Quotes`.`id` WHERE `Quotes`.`id` = ' + req.params.nb, function(e, r, i) {
-      if (!i.numRows) {
-	res.statusCode = 404;
-	res.statusMessage = 'Not found';
-	res.send(res.statusMessage);
-      }
-      else {
-	var data = {
-	  id: r[0].id,
-	  votes: {
-	    plus: parseInt(r[0].voteplus),
-	    minus: parseInt(r[0].voteminus)
-	  },
-	  content: [],
-	  comments: []};
-	data.id = r[0].id;
-	_.each(r, function(row) {
-	  data.content.push({login: row.login, line: row.content})
-	});
-	c.parsedQuery('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + req.params.nb, function(e, r, i) {
-	  _.each(r, function(row) {
-	    data.comments.push({
-	      id: parseInt(row.id),
-	      content: row.content,
-	      author: {
-		id: parseInt(row.authorId),
-		name: row.login
-	      },
-	      votes: {
-		plus: parseInt(row.voteplus),
-		minus: parseInt(row.voteminus)
-	      }
-	    });
-	  });
-	  console.log('Quote ' + data.id + ' sent to ' + req.connection.remoteAddress);
-	  res.statusCode = 200;
-	  res.send(data);
-	});
-      }
-    })
-  }
-  else if (req.params.nb == 'random') {
-    res.statusCode = 501;
-    res.statusMessage = 'Not implemented';
-    res.send(res.statusMessage);
-  }
+  if (req.params.nb.match(/^\d{1,}$/))
+    sendQuote(req, res, req.params.nb);
+  else if (req.params.nb == 'random')
+    sendQuote(req, res);
   else {
     res.statusCode = 400;
     res.statusMessage = 'Invalid route';
