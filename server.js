@@ -6,8 +6,6 @@ var _ = require('lodash');
 var config = require('./config.json');
 var app = express();
 
-require('pretty-console.log').enable();
-
 var c = new maria();
 c.connect(config.db);
 
