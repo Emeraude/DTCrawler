@@ -23,10 +23,6 @@ c.parsedQuery = function(query, cb) {
     });
 }
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-
 app.get('/quote/:nb', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   if (req.params.nb.match(/^\d{1,}$/)) {
