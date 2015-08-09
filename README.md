@@ -62,7 +62,7 @@ The *content.login* field contain all the informations before the message, it ca
 
 #### GET /quote/random
 
-** Not implemented yet.**
+**Not implemented yet.**
 
 ### Author
 
