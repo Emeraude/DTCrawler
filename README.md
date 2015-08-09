@@ -18,6 +18,52 @@ Once it's done, you can launch the API server.
 ./server.js
 ```
 
+## API
+
+The API return JSON data.  
+Note that the returned quotes are parsed line by line.
+
+#### GET /quote/:nb
+
+You will simply get all the datas about the quote, with this format:
+```json
+{
+	"votes": {
+		"plus": 1337,
+		"minus": 42
+	},
+	"content": [
+		{
+			"login": "login1",
+			"line": "line1",
+		}, {
+			"login": "login2",
+			"line": "line2"
+		}
+	],
+	"comments": [
+		{
+			"id": 42,
+			"content": "This API is awesome",
+			"author": {
+				"id": 42,
+				"login": "Emeraude"
+			},
+			"votes": {
+				"plus": 1337,
+				"minus": 42
+			}
+		}
+	]
+}
+```
+
+The *content.login* field contain all the informations before the message, it can contain the login, the date, a separator character etc...
+
+#### GET /quote/random
+
+** Not implemented yet.**
+
 ### Author
 
 Emeraude
