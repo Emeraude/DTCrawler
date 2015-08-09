@@ -35,13 +35,12 @@ function updateQuotesNb() {
 updateQuotesNb();
 
 function sendQuote(req, res, nb) {
-  var query = 'SELECT `Quotes`.`id`, `Quotes`.`voteplus`, `Quotes`.`voteminus`, `Lines`.`login`, `Lines`.`content` FROM `Quotes` LEFT JOIN `Lines` ON `Lines`.`quoteId` = `Quotes`.`id` ';
+  var query = 'SELECT `Quotes`.`id`, `Quotes`.`voteplus`, `Quotes`.`voteminus` FROM `Quotes`';
   if (nb)
     query += 'WHERE `Quotes`.`id` = ' + nb;
   else
-    query += 'LIMIT 1 OFFSET ' + parseInt(Math.random() * quotesNb); // OFFSET is really slow and I don't know why
+    query += 'LIMIT 1 OFFSET ' + parseInt(Math.random() * quotesNb);
   c.parsedQuery(query, function(e, r, i) {
-    console.log(query);
     if (!i.numRows) {
       res.statusCode = 404;
       res.statusMessage = 'Not found';
@@ -57,27 +56,29 @@ function sendQuote(req, res, nb) {
 	content: [],
 	comments: []};
       data.id = r[0].id;
-      _.each(r, function(row) {
-	data.content.push({login: row.login, line: row.content})
-      });
-      c.parsedQuery('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + r[0].id, function(e, r, i) {
+      c.parsedQuery('SELECT `Lines`.`login`, `Lines`.`content` FROM `Lines` WHERE `Lines`.`quoteId` = ' + data.id, function(e, r, i) {
 	_.each(r, function(row) {
-	  data.comments.push({
-	    id: parseInt(row.id),
-	    content: row.content,
-	    author: {
-	      id: parseInt(row.authorId),
-	      name: row.login
-	    },
-	    votes: {
-	      plus: parseInt(row.voteplus),
-	      minus: parseInt(row.voteminus)
-	    }
-	  });
+	  data.content.push({login: row.login, line: row.content})
 	});
-	console.log('Quote ' + data.id + ' sent to ' + req.connection.remoteAddress);
-	res.statusCode = 200;
-	res.send(data);
+	c.parsedQuery('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + data.id, function(e, r, i) {
+	  _.each(r, function(row) {
+	    data.comments.push({
+	      id: parseInt(row.id),
+	      content: row.content,
+	      author: {
+		id: parseInt(row.authorId),
+		name: row.login
+	      },
+	      votes: {
+		plus: parseInt(row.voteplus),
+		minus: parseInt(row.voteminus)
+	      }
+	    });
+	  });
+	  console.log('Quote ' + data.id + ' sent to ' + req.connection.remoteAddress);
+	  res.statusCode = 200;
+	  res.send(data);
+	});
       });
     }
   })
