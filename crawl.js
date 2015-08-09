@@ -4,6 +4,7 @@ var http = require('http');
 var cheerio = require('cheerio');
 var _ = require('lodash');
 var maria = require('mariasql');
+var config = require('./config.json');
 
 function getPage(options, cb) {
   var page = '';
@@ -74,12 +75,7 @@ function getQuote(nb, cb) {
 }
 
 var c = new maria();
-c.connect({
-  host: '127.0.0.1',
-  user: 'root',
-  password: 'toor',
-  db: 'DTCrawler'
-});
+c.connect(config.db);
 
 c.parsedQuery = function(query, cb) {
   c.query(query)
