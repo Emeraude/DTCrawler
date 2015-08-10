@@ -1,6 +1,6 @@
 {
   "name": "dtcrawler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Crawler to get all the quotes from danstonchat.com and making a JSON API with it",
   "main": "crawl.js",
   "scripts": {
