@@ -84,6 +84,12 @@ function sendQuote(req, res, nb) {
   })
 }
 
+app.get('/', function(req, res) {
+  res.statusCode = 400;
+  res.statusMessage = 'Invalid route';
+  res.send(res.statusMessage);
+});
+
 app.get('/quote/:nb', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   if (req.params.nb.match(/^\d{1,}$/))
