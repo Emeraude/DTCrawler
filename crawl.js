@@ -9,41 +9,36 @@ var rp = new Rp(100);
 
 function getPage(options, cb) {
   rp.query(options, function(e, r) {
+    if (e) {
+      console.error(e)
+      return;
+    }
     var page = '';
     r.on('data', function(d) {
       page += d;
     }).on('end', function() {
       if (r.statusCode == 200)
-	cb(undefined, page);
-      else {
-	cb(r.statusCode);
-      }
+	cb(page);
+      else
+	console.error('Error ' + r.statusCode);
     });
   });
 }
 
 function getLatestQuoteNumber(cb) {
-  getPage({host: 'danstonchat.com', path: '/latest.html', port: 80, method: 'GET'}, function(e, page) {
-    if (e) {
-      cb(e);
-      return;
-    }
+  getPage({host: 'danstonchat.com', path: '/latest.html', port: 80, method: 'GET'}, function(page) {
     var $ = cheerio.load(page);
     var latestQuote;
     $('#content > .item-listing > div.item').each(function(i, item) {
       if (!i)
 	latestQuote = parseInt($(item).attr('class').split(' ')[1].substr(4));
     });
-    cb(undefined, latestQuote);
+    cb(latestQuote);
   });
 }
 
 function getQuote(nb, cb) {
-  getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(e, page) {
-    if (e) {
-      cb(e);
-      return;
-    }
+  getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(page) {
     var $ = cheerio.load(page);
     var quote = {id: nb,
 		 content: [],
@@ -71,7 +66,7 @@ function getQuote(nb, cb) {
       }
       quote.comments.push(comment);
     });
-    cb(undefined, quote);
+    cb(quote);
   });
 }
 
@@ -139,27 +134,23 @@ function createQuote(quote) {
   });
 }
 
-getLatestQuoteNumber(function(e, nb) {
+getLatestQuoteNumber(function(nb) {
   for (i = 1; i <= nb; ++i) {
-    getQuote(i, function(e, quote) {
-      if (e)
-	console.log('Error ' + e);
-      else {
-	console.log('Parsed: ' + quote.id)
-	c.parsedQuery('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
-	  if (r[0]['COUNT(*)'] != '0') {
-	    _.each(quote.comments, function(comment) {
-	      updateComment(comment, quote.id);
-	    });
-	    c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
-	      if (e)
-		throw e;
-	    });
-	  }
-	  else
-	    createQuote(quote);
-	});
-      }
+    getQuote(i, function(quote) {
+      console.log('Parsed: ' + quote.id)
+      c.parsedQuery('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
+	if (r[0]['COUNT(*)'] != '0') {
+	  _.each(quote.comments, function(comment) {
+	    updateComment(comment, quote.id);
+	  });
+	  c.parsedQuery('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
+	    if (e)
+	      throw e;
+	  });
+	}
+	else
+	  createQuote(quote);
+      });
     });
   }
 });
