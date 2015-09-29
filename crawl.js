@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
-var http = require('http');
+var Rp = require('requests-pool');
 var cheerio = require('cheerio');
 var _ = require('lodash');
 var maria = require('mariasql');
 var config = require('./config.json');
+var rp = new Rp(100);
 
 function getPage(options, cb) {
-  var page = '';
-  http.get(options, function(r) {
+  rp.query(options, function(e, r) {
+    var page = '';
     r.on('data', function(d) {
       page += d;
     }).on('end', function() {
