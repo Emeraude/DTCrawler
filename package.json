@@ -1,6 +1,6 @@
 {
   "name": "dtcrawler",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A Crawler to get all the quotes from danstonchat.com and making a JSON API with it",
   "main": "crawl.js",
   "scripts": {
@@ -28,6 +28,6 @@
     "express": "^4.13.3",
     "lodash": "^3.10.1",
     "mariasql": "^0.1.23",
-    "requests-pool": "^1.4.0"
+    "requests-pool": "^1.5.0"
   }
 }

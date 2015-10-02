@@ -8,7 +8,7 @@ var config = require('./config.json');
 var rp = new Rp(100);
 
 function getPage(options, cb) {
-  rp.query(options, function(e, r) {
+  rp.request(options, function(e, r) {
     if (e) {
       console.error(e)
       return;
