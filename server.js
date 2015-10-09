@@ -9,24 +9,10 @@ var app = express();
 var c = new maria();
 c.connect(config.db);
 
-c.parsedQuery = function(query, cb) {
-  c.query(query)
-    .on('result', function(r) {
-      var d = [];
-      r.on('row', function(row) {
-	d.push(row);
-      }).on('end', function(i) {
-	cb(undefined, d, i);
-      }).on('error', function(e) {
-	cb(e, undefined, undefined);
-      });
-    });
-}
-
 var quotesNb;
 
 function updateQuotesNb() {
-  c.parsedQuery('SELECT COUNT(*) FROM `Quotes`', function(e, r, i) {
+  c.query('SELECT COUNT(*) FROM `Quotes`', function(e, r, i) {
     quotesNb = r[0]['COUNT(*)'];
   });
   setTimeout(updateQuotesNb, 6000);
@@ -40,8 +26,8 @@ function sendQuote(req, res, nb) {
     query += 'WHERE `Quotes`.`id` = ' + nb;
   else
     query += 'LIMIT 1 OFFSET ' + parseInt(Math.random() * quotesNb);
-  c.parsedQuery(query, function(e, r, i) {
-    if (!i.numRows) {
+  c.query(query, function(e, r) {
+    if (!r.info.numRows) {
       res.statusCode = 404;
       res.statusMessage = 'Not found';
       res.send(res.statusMessage);
@@ -56,11 +42,11 @@ function sendQuote(req, res, nb) {
 	content: [],
 	comments: []};
       data.id = r[0].id;
-      c.parsedQuery('SELECT `Lines`.`login`, `Lines`.`content` FROM `Lines` WHERE `Lines`.`quoteId` = ' + data.id, function(e, r, i) {
+      c.query('SELECT `Lines`.`login`, `Lines`.`content` FROM `Lines` WHERE `Lines`.`quoteId` = ' + data.id, function(e, r, i) {
 	_.each(r, function(row) {
 	  data.content.push({login: row.login, line: row.content})
 	});
-	c.parsedQuery('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` LEFT JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + data.id, function(e, r, i) {
+	c.query('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` LEFT JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + data.id, function(e, r, i) {
 	  _.each(r, function(row) {
 	    data.comments.push({
 	      id: parseInt(row.id),
