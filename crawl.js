@@ -74,7 +74,7 @@ var c = new maria();
 c.connect(config.db);
 
 function addAuthor(author) {
-  c.query('SELECT COUNT(*) FROM `Authors` WHERE `id` = ' + author.id, function(e, r, i) {
+  c.query('SELECT COUNT(*) FROM `Authors` WHERE `id` = ' + author.id, function(e, r) {
     if (r[0]['COUNT(*)'] == '0') {
       c.query('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.login) + '")', function(e, r, i) {
       });
@@ -83,7 +83,7 @@ function addAuthor(author) {
 }
 
 function addComment(comment, quoteId) {
-  c.query('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + (comment.author ? comment.author.id : 'NULL') + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r, i) {
+  c.query('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + (comment.author ? comment.author.id : 'NULL') + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r) {
     if (comment.author)
       addAuthor(comment.author);
     if (e)
@@ -92,7 +92,7 @@ function addComment(comment, quoteId) {
 }
 
 function updateComment(comment, quoteId) {
-  c.query('SELECT COUNT(*) FROM `Comments` WHERE `id` = ' + comment.id, function(e, r, i) {
+  c.query('SELECT COUNT(*) FROM `Comments` WHERE `id` = ' + comment.id, function(e, r) {
     if (r[0]['COUNT(*)'] != '0') {
       c.query('UPDATE `Comments` SET `voteminus` = ' + comment.votes.minus + ', `voteplus` = ' + comment.votes.plus + ' WHERE `id` = ' + comment.id, function(e, r, i) {
 	if (e)
@@ -105,7 +105,7 @@ function updateComment(comment, quoteId) {
 }
 
 function createQuote(quote) {
-  c.query('INSERT INTO `Quotes`(`id`, `voteminus`, `voteplus`) VALUES(' + quote.id + ', ' + quote.votes.minus + ', ' + quote.votes.plus + ')', function(e, r, i) {
+  c.query('INSERT INTO `Quotes`(`id`, `voteminus`, `voteplus`) VALUES(' + quote.id + ', ' + quote.votes.minus + ', ' + quote.votes.plus + ')', function(e, r) {
     if (e)
       throw e;
     _.each(quote.content, function(line) {
@@ -124,12 +124,12 @@ getLatestQuoteNumber(function(nb) {
   for (i = 1; i <= nb; ++i) {
     getQuote(i, function(quote) {
       console.log('Parsed: ' + quote.id)
-      c.query('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r, i) {
+      c.query('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r) {
 	if (r[0]['COUNT(*)'] != '0') {
 	  _.each(quote.comments, function(comment) {
 	    updateComment(comment, quote.id);
 	  });
-	  c.query('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r, i) {
+	  c.query('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r) {
 	    if (e)
 	      throw e;
 	  });

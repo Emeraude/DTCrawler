@@ -42,11 +42,11 @@ function sendQuote(req, res, nb) {
 	content: [],
 	comments: []};
       data.id = r[0].id;
-      c.query('SELECT `Lines`.`login`, `Lines`.`content` FROM `Lines` WHERE `Lines`.`quoteId` = ' + data.id, function(e, r, i) {
+      c.query('SELECT `Lines`.`login`, `Lines`.`content` FROM `Lines` WHERE `Lines`.`quoteId` = ' + data.id, function(e, r) {
 	_.each(r, function(row) {
 	  data.content.push({login: row.login, line: row.content})
 	});
-	c.query('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` LEFT JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + data.id, function(e, r, i) {
+	c.query('SELECT `Comments`.`id`, `Comments`.`voteplus`, `Comments`.`voteminus`, `Comments`.`content`, `Comments`.`authorId`, `Authors`.`login` FROM `Comments` LEFT JOIN `Authors` ON `Comments`.`authorId` = `Authors`.`id` WHERE quoteId = ' + data.id, function(e, r) {
 	  _.each(r, function(row) {
 	    data.comments.push({
 	      id: parseInt(row.id),
