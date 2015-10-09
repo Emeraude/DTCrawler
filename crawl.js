@@ -83,24 +83,9 @@ function addAuthor(author) {
 }
 
 function addComment(comment, quoteId) {
-  c.query('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(' + comment.id + ', ' + quoteId + ', ' + (comment.author ? comment.author.id : 'NULL') + ', "' + c.escape(comment.content) + '", ' + comment.votes.plus + ', ' + comment.votes.minus + ')', function(e, r) {
+  c.query('INSERT INTO `Comments`(`id`, `quoteId`, `authorId`, `content`, `voteplus`, `voteminus`) VALUES(:id, :quoteId, :author, :content, :plus, :minus) ON DUPLICATE KEY UPDATE `voteminus` = VALUES(`voteminus`), `voteplus` = VALUES(`voteplus`)', {id: comment.id, quoteId: quoteId, author: comment.author ? comment.author.id : null, content: comment.content, plus: comment.votes.plus, minus: comment.votes.minus}, function(e, r) {
     if (comment.author)
       addAuthor(comment.author);
-    if (e)
-      throw e;
-  });
-}
-
-function updateComment(comment, quoteId) {
-  c.query('SELECT COUNT(*) FROM `Comments` WHERE `id` = ' + comment.id, function(e, r) {
-    if (r[0]['COUNT(*)'] != '0') {
-      c.query('UPDATE `Comments` SET `voteminus` = ' + comment.votes.minus + ', `voteplus` = ' + comment.votes.plus + ' WHERE `id` = ' + comment.id, function(e, r, i) {
-	if (e)
-	  throw e;
-      });
-    }
-    else
-      addComment(comment, quoteId);
   });
 }
 
@@ -127,7 +112,7 @@ getLatestQuoteNumber(function(nb) {
       c.query('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r) {
 	if (r[0]['COUNT(*)'] != '0') {
 	  _.each(quote.comments, function(comment) {
-	    updateComment(comment, quote.id);
+	    addComment(comment, quote.id);
 	  });
 	  c.query('UPDATE `Quotes` SET `voteminus` = ' + quote.votes.minus + ', `voteplus` = ' + quote.votes.plus + ' WHERE `id` = ' + quote.id, function(e, r) {
 	    if (e)
