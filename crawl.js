@@ -74,12 +74,7 @@ var c = new maria();
 c.connect(config.db);
 
 function addAuthor(author) {
-  c.query('SELECT COUNT(*) FROM `Authors` WHERE `id` = ' + author.id, function(e, r) {
-    if (r[0]['COUNT(*)'] == '0') {
-      c.query('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.login) + '")', function(e, r, i) {
-      });
-    }
-  });
+  c.query('INSERT INTO `Authors`(`id`, `login`) VALUES(' + author.id + ', "' + c.escape(author.login) + '")', function(e, r) {});
 }
 
 function addComment(comment, quoteId) {
