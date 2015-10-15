@@ -4,8 +4,15 @@ var Rp = require('requests-pool');
 var cheerio = require('cheerio');
 var _ = require('lodash');
 var maria = require('mariasql');
+var arg = require('commander')
 var config = require('./config.json');
 var rp = new Rp(100);
+
+arg
+  .version(require('./package.json').version)
+  .usage('[-l|--lasts]')
+  .option('-l, --lasts', 'Get the lasts quotes')
+  .parse(process.argv);
 
 function getPage(options, cb) {
   rp.request(options, function(e, r) {
@@ -100,8 +107,8 @@ function createQuote(quote) {
   });
 }
 
-getLatestQuoteNumber(function(nb) {
-  for (i = 1; i <= nb; ++i) {
+function crawlRange(start, end) {
+  for (i = start; i <= end; ++i) {
     getQuote(i, function(quote) {
       console.log('Parsed: ' + quote.id)
       c.query('SELECT COUNT(*) FROM `Quotes` WHERE `id` = ' + quote.id, function(e, r) {
@@ -119,4 +126,14 @@ getLatestQuoteNumber(function(nb) {
       });
     });
   }
+}
+
+getLatestQuoteNumber(function(nb) {
+  if (arg.lasts) {
+    c.query('SELECT MAX(`id`) FROM `Quotes`', function(e, r) {
+      crawlRange(r[0]['MAX(`id`)'], nb);
+    });
+  }
+  else
+    crawlRange(1, nb);
 });
