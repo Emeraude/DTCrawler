@@ -1,6 +1,6 @@
 # DTCrawler
 
-DTCrawler is a crawler that get all the quotes from [DTC](http://danstonchat.com).
+DTCrawler is a crawler that get all the quotes from [DTC](https://danstonchat.com).
 
 ## Usage
 
@@ -20,7 +20,7 @@ Once it's done, you can launch the API server.
 
 ## Example
 
-An example server is running at [dtc.rainbowda.sh](dtc.rainbowda.sh).  
+An example server is running at [dtc.rainbowda.sh](https://dtc.rainbowda.sh).  
 You can use it to test the API
 
 ```bash
