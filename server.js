@@ -27,7 +27,7 @@ function sendQuote(req, res, nb) {
   else
     query += 'LIMIT 1 OFFSET ' + parseInt(Math.random() * quotesNb);
   c.query(query, function(e, r) {
-    if (!r.info.numRows) {
+    if (r.info.numRows === '0') {
       res.statusCode = 404;
       res.statusMessage = 'Not found';
       res.send(res.statusMessage);
