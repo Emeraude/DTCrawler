@@ -20,11 +20,11 @@ Once it's done, you can launch the API server.
 
 ## Example
 
-An example server is running at [broggit.me:3001](broggit.me:3001).  
+An example server is running at [dtc.rainbowda.sh](dtc.rainbowda.sh).  
 You can use it to test the API
 
 ```bash
-curl broggit.me:3001/quote/43 # will get the quote #43
+curl https://dtc.rainbowda.sh/quote/43 # will get the quote #43
 ```
 
 ## API
