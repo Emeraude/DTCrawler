@@ -33,7 +33,7 @@ function getPage(options, cb) {
 }
 
 function getLatestQuoteNumber(cb) {
-  getPage({host: 'danstonchat.com', path: '/latest.html', port: 80, method: 'GET'}, function(page) {
+  getPage({host: 'danstonchat.com', path: '/latest.html', port: 443, protocol: 'https', method: 'GET'}, function(page) {
     var $ = cheerio.load(page);
     var latestQuote;
     $('#content > .item-listing > div.item').each(function(i, item) {
@@ -45,7 +45,7 @@ function getLatestQuoteNumber(cb) {
 }
 
 function getQuote(nb, cb) {
-  getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 80, method: 'GET'}, function(page) {
+  getPage({host: 'danstonchat.com', path: '/' + nb + '.html', port: 443, protocol: 'https', method: 'GET'}, function(page) {
     var $ = cheerio.load(page);
     var quote = {id: nb,
 		 content: [],
